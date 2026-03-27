@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>DIEYLA SHOP PRO - Gestion Avancée</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -11,8 +11,12 @@
 :root{--pink:#E91E8C;--pink-l:#FF4DB8;--pink-p:#FFF0F7;--pink-b:#FFD6EE;--dark:#1A0A12;--txt:#3D1A2C;--muted:#9B6B85;--white:#FFFFFF;--ok:#00C853;--warn:#FF6D00;--bad:#D50000;--shadow:0 4px 24px rgba(233,30,140,0.08);--r:16px;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:#FBF0F6;min-height:100vh;color:var(--txt);font-size:14px;}
-.layout{display:flex;min-height:100vh;}
-.sidebar{width:220px;background:var(--dark);display:flex;flex-direction:column;padding:20px 0;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.layout{display:flex;min-height:100vh;position:relative;}
+/* SIDEBAR - Version mobile avec overlay */
+.sidebar{width:280px;background:var(--dark);display:flex;flex-direction:column;padding:20px 0;position:fixed;top:0;left:-280px;bottom:0;z-index:1000;transition:left 0.3s ease;box-shadow:2px 0 20px rgba(0,0,0,0.2);}
+.sidebar.open{left:0;}
+.sidebar-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;display:none;backdrop-filter:blur(4px);}
+.sidebar-overlay.open{display:block;}
 .sb-logo{padding:0 20px 24px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:16px;}
 .sb-logo .logo-circle{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--pink),#B5147A);display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
 .sb-logo .logo-circle span{font-size:28px;}
@@ -26,106 +30,95 @@ body{font-family:'DM Sans',sans-serif;background:#FBF0F6;min-height:100vh;color:
 .nav-i:hover{background:rgba(255,255,255,.06);color:#fff;}
 .nav-i.active{background:linear-gradient(90deg,var(--pink),#B5147A);color:#fff;box-shadow:0 4px 16px rgba(233,30,140,.35);}
 .sb-foot{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);font-size:.7em;color:rgba(255,255,255,.25);line-height:1.6;}
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
-.topbar{background:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--pink-b);position:sticky;top:0;z-index:50;}
-.pg-title{font-family:"Playfair Display",serif;font-size:1.3em;color:var(--txt);}
+/* MAIN */
+.main{margin-left:0;flex:1;display:flex;flex-direction:column;width:100%;transition:margin-left 0.3s ease;}
+.menu-btn{background:var(--pink);border:none;width:40px;height:40px;border-radius:10px;color:white;font-size:1.2em;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-right:12px;}
+.topbar{background:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--pink-b);position:sticky;top:0;z-index:100;}
+.pg-title{font-family:"Playfair Display",serif;font-size:1.1em;color:var(--txt);flex:1;}
 .tb-acts{display:flex;gap:8px;align-items:center;}
-.content{padding:24px 28px;}
-.card{background:#fff;border-radius:var(--r);padding:20px;box-shadow:var(--shadow);border:1px solid var(--pink-b);margin-bottom:20px;}
-.ct{font-family:"Playfair Display",serif;font-size:1.05em;color:var(--txt);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-.ct .ic{background:var(--pink-p);color:var(--pink);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9em;}
-.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
-.sc{background:#fff;border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow);border:1px solid var(--pink-b);position:relative;overflow:hidden;}
-.sc::before{content:"";position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 var(--r) 0 100%;opacity:.08;}
-.sc.pk::before{background:var(--pink)}.sc.ok::before{background:var(--ok)}.sc.wn::before{background:var(--warn)}.sc.pu::before{background:#7C3AED;}
-.si{font-size:1.4em;margin-bottom:10px;}
-.sn{font-family:"Playfair Display",serif;font-size:1.5em;font-weight:700;color:var(--txt);line-height:1;margin-bottom:4px;}
-.sl{font-size:.72em;color:var(--muted);font-weight:500;}
-.btn{padding:9px 18px;border-radius:10px;border:none;font-family:"DM Sans",sans-serif;font-size:.82em;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;}
-.btn:disabled{opacity:.45;cursor:not-allowed;}
-.btn-p{background:linear-gradient(135deg,var(--pink),#B5147A);color:#fff;box-shadow:0 4px 14px rgba(233,30,140,.3);}
-.btn-p:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(233,30,140,.4);}
+.content{padding:16px;}
+.card{background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--shadow);border:1px solid var(--pink-b);margin-bottom:16px;}
+.ct{font-family:"Playfair Display",serif;font-size:1em;color:var(--txt);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.ct .ic{background:var(--pink-p);color:var(--pink);width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.8em;}
+.sg{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.sc{background:#fff;border-radius:var(--r);padding:12px;box-shadow:var(--shadow);border:1px solid var(--pink-b);position:relative;overflow:hidden;}
+.si{font-size:1.2em;margin-bottom:6px;}
+.sn{font-family:"Playfair Display",serif;font-size:1.2em;font-weight:700;color:var(--txt);line-height:1;margin-bottom:4px;}
+.sl{font-size:.65em;color:var(--muted);font-weight:500;}
+.btn{padding:8px 14px;border-radius:10px;border:none;font-family:"DM Sans",sans-serif;font-size:.75em;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;}
+.btn-p{background:linear-gradient(135deg,var(--pink),#B5147A);color:#fff;}
 .btn-o{background:transparent;color:var(--pink);border:1.5px solid var(--pink-b);}
-.btn-o:hover{background:var(--pink-p);}
 .btn-g{background:var(--pink-p);color:var(--pink);}
 .btn-d{background:#FFE8E8;color:var(--bad);}
-.btn-d:hover{background:#FFD0D0;}
-.btn-sm{padding:5px 10px;font-size:.75em;border-radius:7px;}
-.fg{margin-bottom:12px;}
-label{display:block;font-size:.75em;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
-input,select,textarea{width:100%;padding:10px 13px;border:1.5px solid var(--pink-b);border-radius:10px;font-family:"DM Sans",sans-serif;font-size:.88em;color:var(--txt);background:#fff;transition:border-color .2s,box-shadow .2s;outline:none;}
+.btn-sm{padding:4px 8px;font-size:.7em;}
+.fg{margin-bottom:10px;}
+label{display:block;font-size:.7em;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+input,select,textarea{width:100%;padding:8px 10px;border:1.5px solid var(--pink-b);border-radius:10px;font-family:"DM Sans",sans-serif;font-size:.85em;color:var(--txt);background:#fff;outline:none;}
 input:focus,select:focus,textarea:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(233,30,140,.1);}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-.tw{overflow-x:auto;max-height:450px;overflow-y:auto;}
-table{width:100%;border-collapse:collapse;font-size:.82em;}
-thead th{background:var(--pink-p);color:var(--pink);font-weight:600;padding:10px 12px;text-align:left;position:sticky;top:0;font-size:.75em;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--pink-b);}
-tbody tr{border-bottom:1px solid #FFF0F7;transition:background .15s;}
-tbody tr:hover{background:var(--pink-p);}
-tbody td{padding:10px 12px;vertical-align:middle;}
-.bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.72em;font-weight:600;}
-.ok{background:#E8FFF0;color:#00A040;}.wn{background:#FFF3E0;color:#E65100;}.dn{background:#FFE8E8;color:var(--bad);}.pk{background:var(--pink-p);color:var(--pink);}.gd{background:#FFF9E7;color:#B8860B;border:1px solid #FFD700;}.inf{background:#EEF2FF;color:#4F46E5;}
-.tab-bar{display:flex;gap:4px;margin-bottom:20px;background:var(--pink-p);padding:5px;border-radius:12px;flex-wrap:wrap;}
-.tab-b{padding:8px 14px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-family:"DM Sans",sans-serif;font-size:.8em;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;}
-.tab-b.active{background:#fff;color:var(--pink);box-shadow:0 2px 8px rgba(233,30,140,.15);}
-.ci{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--pink-b);}
-.ci:last-child{border:none;}
-.qc{display:flex;align-items:center;gap:8px;}
-.qb{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--pink-b);background:#fff;color:var(--pink);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1em;transition:all .2s;}
-.qb:hover{background:var(--pink);color:#fff;border-color:var(--pink);}
-.alert{padding:12px 16px;border-radius:10px;font-size:.82em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.al-w{background:#FFF3E0;border-left:4px solid var(--warn);color:#5D2E00;}
-.al-d{background:#FFE8E8;border-left:4px solid var(--bad);color:#5D0000;}
-.al-s{background:#E8FFF0;border-left:4px solid var(--ok);color:#003D20;}
-.cb{background:var(--pink-p);border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid var(--pink-b);}
-.sp{position:fixed;bottom:16px;right:20px;background:var(--dark);color:rgba(255,255,255,.8);padding:7px 14px;border-radius:20px;font-size:.72em;font-weight:500;z-index:999;display:flex;align-items:center;gap:6px;box-shadow:0 4px 20px rgba(0,0,0,.2);}
-.sd{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite;}
+.g2{display:grid;grid-template-columns:1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.tw{overflow-x:auto;max-height:400px;overflow-y:auto;}
+table{width:100%;border-collapse:collapse;font-size:.75em;min-width:500px;}
+thead th{background:var(--pink-p);color:var(--pink);font-weight:600;padding:8px 10px;text-align:left;position:sticky;top:0;font-size:.7em;text-transform:uppercase;}
+tbody tr{border-bottom:1px solid #FFF0F7;}
+tbody td{padding:8px 10px;vertical-align:middle;}
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:.68em;font-weight:600;}
+.ok{background:#E8FFF0;color:#00A040;}.wn{background:#FFF3E0;color:#E65100;}.dn{background:#FFE8E8;color:var(--bad);}.pk{background:var(--pink-p);color:var(--pink);}.gd{background:#FFF9E7;color:#B8860B;}.inf{background:#EEF2FF;color:#4F46E5;}
+.ci{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--pink-b);}
+.qc{display:flex;align-items:center;gap:6px;}
+.qb{width:24px;height:24px;border-radius:6px;border:1.5px solid var(--pink-b);background:#fff;color:var(--pink);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.alert{padding:10px 12px;border-radius:10px;font-size:.75em;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.al-w{background:#FFF3E0;border-left:4px solid var(--warn);}
+.al-d{background:#FFE8E8;border-left:4px solid var(--bad);}
+.al-s{background:#E8FFF0;border-left:4px solid var(--ok);}
+.cb{background:var(--pink-p);border-radius:12px;padding:12px;margin-bottom:12px;}
+.sp{position:fixed;bottom:10px;right:10px;background:var(--dark);color:rgba(255,255,255,.8);padding:5px 10px;border-radius:20px;font-size:.65em;z-index:100;display:flex;align-items:center;gap:5px;}
+.sd{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 .page{display:none;}.page.active{display:block;}
-.sw{position:relative;margin-bottom:14px;}
-.sw input{padding-left:36px;}
-.si2{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9em;pointer-events:none;}
-.ctb{background:linear-gradient(135deg,var(--pink),#B5147A);border-radius:12px;padding:14px 16px;margin-top:12px;color:#fff;}
-.ctb .tl{display:flex;justify-content:space-between;margin-bottom:4px;font-size:.82em;opacity:.85;}
-.ctb .tm{display:flex;justify-content:space-between;font-weight:700;font-size:1.1em;margin-top:6px;border-top:1px solid rgba(255,255,255,.3);padding-top:8px;}
-.cw{position:relative;height:250px;}
-.chip{display:inline-flex;align-items:center;gap:6px;background:var(--pink-p);color:var(--pink);padding:5px 12px;border-radius:20px;font-size:.78em;font-weight:500;border:1px solid var(--pink-b);}
-.chip .rm{cursor:pointer;background:var(--pink);color:#fff;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.8em;}
-.chip .rm:hover{background:var(--bad);}
-.hi{background:var(--pink-p);border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--pink-b);}
-.hih{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.mo{display:none;position:fixed;inset:0;background:rgba(26,10,18,.6);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.sw{position:relative;margin-bottom:12px;}
+.sw input{padding-left:32px;}
+.si2{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8em;}
+.ctb{background:linear-gradient(135deg,var(--pink),#B5147A);border-radius:12px;padding:12px;margin-top:12px;color:#fff;}
+.ctb .tl{display:flex;justify-content:space-between;margin-bottom:4px;font-size:.75em;}
+.ctb .tm{display:flex;justify-content:space-between;font-weight:700;font-size:1em;margin-top:6px;border-top:1px solid rgba(255,255,255,.3);padding-top:6px;}
+.cw{position:relative;height:200px;}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--pink-p);color:var(--pink);padding:4px 10px;border-radius:20px;font-size:.72em;border:1px solid var(--pink-b);}
+.chip .rm{cursor:pointer;background:var(--pink);color:#fff;width:14px;height:14px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.7em;}
+.hi{background:var(--pink-p);border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid var(--pink-b);}
+.hih{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
+.mo{display:none;position:fixed;inset:0;background:rgba(26,10,18,.6);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .mo.open{display:flex;}
-.md{background:#fff;border-radius:20px;padding:28px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:su .3s ease;}
-@keyframes su{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.mt2{font-family:"Playfair Display",serif;font-size:1.2em;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--pink-b);display:flex;justify-content:space-between;align-items:center;}
-.mc{background:var(--pink-p);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1em;color:var(--muted);display:flex;align-items:center;justify-content:center;}
-.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;}
-.pc{background:#fff;border:1.5px solid var(--pink-b);border-radius:14px;padding:14px;transition:all .2s;cursor:pointer;}
-.pc:hover{border-color:var(--pink);box-shadow:0 4px 20px rgba(233,30,140,.12);transform:translateY(-2px);}
-.pc .pn{font-weight:600;font-size:.88em;margin-bottom:3px;}
-.pc .pcat{font-size:.7em;color:var(--muted);margin-bottom:8px;}
-.pc .pp{font-family:"Playfair Display",serif;font-size:1em;color:var(--pink);margin-bottom:8px;}
-.vt{display:flex;gap:4px;background:var(--pink-p);padding:4px;border-radius:8px;}
-.vb{width:30px;height:28px;border:none;border-radius:6px;cursor:pointer;background:transparent;color:var(--muted);font-size:.85em;transition:all .2s;}
+.md{background:#fff;border-radius:20px;padding:20px;max-width:90%;width:400px;max-height:90vh;overflow-y:auto;}
+.mt2{font-family:"Playfair Display",serif;font-size:1.1em;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--pink-b);display:flex;justify-content:space-between;align-items:center;}
+.mc{background:var(--pink-p);border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.9em;}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+.pc{background:#fff;border:1.5px solid var(--pink-b);border-radius:12px;padding:10px;cursor:pointer;}
+.pc .pn{font-weight:600;font-size:.8em;margin-bottom:2px;}
+.pc .pcat{font-size:.65em;color:var(--muted);margin-bottom:6px;}
+.pc .pp{font-size:.85em;color:var(--pink);margin-bottom:6px;}
+.vt{display:flex;gap:4px;background:var(--pink-p);padding:3px;border-radius:8px;}
+.vb{width:28px;height:26px;border:none;border-radius:6px;cursor:pointer;background:transparent;font-size:.8em;}
 .vb.active{background:#fff;color:var(--pink);box-shadow:0 2px 6px rgba(0,0,0,.08);}
-.toast{position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
-.ti{background:var(--dark);color:#fff;padding:12px 18px;border-radius:12px;font-size:.82em;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:8px;animation:ti .3s ease;border-left:4px solid var(--pink);}
+.toast{position:fixed;top:70px;right:10px;left:10px;z-index:2000;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
+.ti{background:var(--dark);color:#fff;padding:10px 14px;border-radius:12px;font-size:.75em;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:6px;border-left:4px solid var(--pink);}
 .ti.success{border-left-color:var(--ok);}.ti.warn{border-left-color:var(--warn);}
-@keyframes ti{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
-@keyframes to2{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(30px);}}
-.dvd{border:none;border-top:1px solid var(--pink-b);margin:14px 0;}
-.tp{color:var(--pink);}.tm2{color:var(--muted);}.tsm{font-size:.78em;}.fb{font-weight:700;}.mt8{margin-top:8px;}.mb0{margin-bottom:0;}
-.fb2{display:flex;justify-content:space-between;align-items:center;}
-.fc{display:flex;align-items:center;gap:8px;}
-@media(max-width:900px){.sidebar{width:64px;}.sidebar .nm,.sidebar .sub,.nav-lbl,.nav-i span{display:none;}.nav-i{justify-content:center;padding:12px;}.main{margin-left:64px;}.sg{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){.sidebar{display:none;}.main{margin-left:0;}.sg,.g2,.g3{grid-template-columns:1fr;}.content{padding:16px;}}
+.dvd{border:none;border-top:1px solid var(--pink-b);margin:12px 0;}
+.tp{color:var(--pink);}.tm2{color:var(--muted);}.tsm{font-size:.72em;}.fb{font-weight:700;}.mt8{margin-top:8px;}.mb0{margin-bottom:0;}
+.fb2{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
+.fc{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+/* Version desktop */
+@media(min-width:768px){
+.main{margin-left:220px;}.sidebar{left:0;}.sidebar-overlay{display:none !important;}.menu-btn{display:none;}.content{padding:24px;}.sg{grid-template-columns:repeat(4,1fr);}.g2{grid-template-columns:1fr 1fr;}.pg{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));}.toast{right:20px;left:auto;}}
+@media(max-width:767px){
+.main{margin-left:0;}.pg{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}.g3{grid-template-columns:repeat(2,1fr);}.tb-acts .btn-sm{padding:4px 8px;font-size:.65em;}.pg-title{font-size:1em;}}
 @media print{body *{visibility:hidden;}#rp,#rp *{visibility:visible;}#rp{position:absolute;top:0;left:0;width:100%;}}
 </style>
 </head>
 <body>
 <div class="layout">
-<aside class="sidebar">
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
 <div class="sb-logo">
 <div class="logo-circle"><span>🌸</span></div>
 <div class="nm"><span>Dieyla</span>Shop</div>
@@ -156,10 +149,11 @@ tbody td{padding:10px 12px;vertical-align:middle;}
 
 <main class="main">
 <div class="topbar">
+<button class="menu-btn" id="menuBtn">☰</button>
 <div class="pg-title" id="pageTitle">📊 Tableau de bord</div>
 <div class="tb-acts">
-<button class="btn btn-o btn-sm" id="dailyReportBtn">📅 Rapport du jour</button>
-<button class="btn btn-p btn-sm" id="newSaleBtn">🛒 Nouvelle vente</button>
+<button class="btn btn-o btn-sm" id="dailyReportBtn">📅 Rapport</button>
+<button class="btn btn-p btn-sm" id="newSaleBtn">🛒 Vente</button>
 </div>
 </div>
 
@@ -180,19 +174,19 @@ tbody td{padding:10px 12px;vertical-align:middle;}
 <div class="ct"><span class="ic">📈</span>Évolution des ventes</div>
 <div class="cw"><canvas id="salesChart"></canvas></div>
 <hr class="dvd">
-<div class="g3" style="gap:12px;">
-<div style="text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.1em;" id="curCA">0</div><div class="tsm tm2">Mois en cours</div></div>
-<div style="text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.1em;" id="lstCA">0</div><div class="tsm tm2">Mois dernier</div></div>
-<div style="text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.1em;" id="evoP">0%</div><div class="tsm tm2">Évolution</div></div>
+<div class="g3" style="gap:10px;">
+<div style="text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1em;" id="curCA">0</div><div class="tsm tm2">Mois en cours</div></div>
+<div style="text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1em;" id="lstCA">0</div><div class="tsm tm2">Mois dernier</div></div>
+<div style="text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1em;" id="evoP">0%</div><div class="tsm tm2">Évolution</div></div>
 </div>
-<div style="background:var(--pink-p);border-radius:10px;padding:10px;margin-top:12px;text-align:center;">
+<div style="background:var(--pink-p);border-radius:8px;padding:8px;margin-top:10px;text-align:center;">
 <div class="tsm tm2">Prévision mois prochain</div>
-<div style="font-family:Playfair Display,serif;font-size:1.2em;color:var(--pink);" id="forecast">0 FCFA</div>
+<div style="font-family:Playfair Display,serif;font-size:1.1em;color:var(--pink);" id="forecast">0 FCFA</div>
 </div>
 </div>
 <div>
-<div class="card"><div class="ct"><span class="ic">🏆</span>Top produits</div><div id="topProd" style="font-size:.82em;"></div></div>
-<div class="card"><div class="ct"><span class="ic">📊</span>Bénéfice par catégorie</div><div class="cw" style="height:180px;"><canvas id="catChart"></canvas></div></div>
+<div class="card"><div class="ct"><span class="ic">🏆</span>Top produits</div><div id="topProd" style="font-size:.75em;"></div></div>
+<div class="card"><div class="ct"><span class="ic">📊</span>Bénéfice par catégorie</div><div class="cw" style="height:160px;"><canvas id="catChart"></canvas></div></div>
 </div>
 </div>
 </div>
@@ -202,29 +196,29 @@ tbody td{padding:10px 12px;vertical-align:middle;}
 <div class="g2">
 <div class="card">
 <div class="ct"><span class="ic">🔍</span>Chercher un article</div>
-<div class="sw"><span class="si2">🔍</span><input type="text" id="venteSearch" placeholder="Nom d'article, catégorie..." oninput="renderVenteCat()"></div>
-<div id="venteCat" style="max-height:420px;overflow-y:auto;"></div>
+<div class="sw"><span class="si2">🔍</span><input type="text" id="venteSearch" placeholder="Nom article..." oninput="renderVenteCat()"></div>
+<div id="venteCat" style="max-height:350px;overflow-y:auto;"></div>
 </div>
 <div>
 <div class="card">
 <div class="ct"><span class="ic">👤</span>Informations client</div>
 <div class="cb">
-<div class="g2" style="gap:10px;">
+<div class="g2" style="gap:8px;">
 <div class="fg mb0"><label>Nom complet *</label><input type="text" id="clientName" placeholder="Ex: Fatou Diop"></div>
 <div class="fg mb0"><label>Téléphone *</label><input type="text" id="clientPhone" placeholder="77 XXX XX XX" onblur="lookupClient()"></div>
 </div>
-<div class="fg" style="margin-top:10px;margin-bottom:0;"><label>Adresse (optionnel)</label><input type="text" id="clientAddress" placeholder="Ex: Rufisque centre"></div>
+<div class="fg" style="margin-top:8px;margin-bottom:0;"><label>Adresse</label><input type="text" id="clientAddress" placeholder="Ex: Rufisque centre"></div>
 <div id="cliPts" class="bdg gd mt8" style="display:none;"></div>
 </div>
 <div class="ct"><span class="ic">🛒</span>Panier</div>
 <div id="cartList" style="max-height:200px;overflow-y:auto;"></div>
 <div class="ctb" id="cartTotalBox" style="display:none;"></div>
 <div style="margin-top:12px;">
-<div class="fc" style="margin-bottom:10px;">
-<input type="text" id="promoInput" placeholder="Code promo (ex: PROMO10)" style="flex:1;">
+<div class="fc" style="margin-bottom:8px;">
+<input type="text" id="promoInput" placeholder="Code promo" style="flex:1;">
 <button class="btn btn-g btn-sm" onclick="applyPromo()">Appliquer</button>
 </div>
-<button class="btn btn-p" style="width:100%;justify-content:center;padding:12px;" onclick="checkout()">💳 Valider la vente</button>
+<button class="btn btn-p" style="width:100%;justify-content:center;padding:10px;" onclick="checkout()">💳 Valider la vente</button>
 </div>
 </div>
 </div>
@@ -237,33 +231,31 @@ tbody td{padding:10px 12px;vertical-align:middle;}
 <div class="card">
 <div class="ct"><span class="ic">➕</span>Ajouter un article</div>
 <form id="productForm">
-<div class="g2" style="gap:10px;">
-<div class="fg"><label>Nom article *</label><input type="text" id="prodName" required placeholder="Ex: Robe fleurie"></div>
+<div class="fg"><label>Nom article *</label><input type="text" id="prodName" required></div>
 <div class="fg"><label>Catégorie</label><select id="productCategory"><option value="">Sans catégorie</option></select></div>
-<div class="fg"><label>Prix d'achat (FCFA)</label><input type="number" id="prodCost" value="0" min="0"></div>
-<div class="fg"><label>Prix de vente (FCFA)</label><input type="number" id="prodPrice" value="0" min="0"></div>
-<div class="fg"><label>Stock initial</label><input type="number" id="prodStock" value="0" min="0"></div>
-<div class="fg"><label>Seuil d'alerte</label><input type="number" id="prodAlert" value="5" min="0"></div>
-<div class="fg" style="grid-column:1/-1;"><label>Fournisseur</label><input type="text" id="prodSupplier" placeholder="Nom du fournisseur"></div>
+<div class="g2" style="gap:8px;">
+<div class="fg"><label>Prix achat</label><input type="number" id="prodCost" value="0" min="0"></div>
+<div class="fg"><label>Prix vente</label><input type="number" id="prodPrice" value="0" min="0"></div>
+<div class="fg"><label>Stock</label><input type="number" id="prodStock" value="0" min="0"></div>
+<div class="fg"><label>Seuil alerte</label><input type="number" id="prodAlert" value="5" min="0"></div>
 </div>
-<button type="submit" class="btn btn-p" style="width:100%;justify-content:center;">➕ Ajouter l'article</button>
+<div class="fg"><label>Fournisseur</label><input type="text" id="prodSupplier"></div>
+<button type="submit" class="btn btn-p" style="width:100%;">➕ Ajouter</button>
 </form>
 <hr class="dvd">
 <div class="ct mb0"><span class="ic">📁</span>Catégories</div>
-<div class="fc mt8" style="margin-bottom:10px;">
+<div class="fc mt8" style="margin-bottom:8px;">
 <input type="text" id="newCatName" placeholder="Nouvelle catégorie..." style="flex:1;">
 <button class="btn btn-g btn-sm" id="addCategoryBtn">➕</button>
 </div>
 <div id="catsList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
 </div>
 <div class="card">
-<div class="fb2" style="margin-bottom:14px;">
+<div class="fb2" style="margin-bottom:12px;">
 <div class="ct mb0"><span class="ic">📦</span>Catalogue</div>
-<div class="fc" style="gap:8px;">
 <div class="vt">
 <button class="vb active" id="viewTable" onclick="setView('table')">☰</button>
 <button class="vb" id="viewGrid" onclick="setView('grid')">⊞</button>
-</div>
 </div>
 </div>
 <div class="sw"><span class="si2">🔍</span><input type="text" id="prodSearch" placeholder="Rechercher..." oninput="renderProducts()"></div>
@@ -275,11 +267,11 @@ tbody td{padding:10px 12px;vertical-align:middle;}
 <!-- CLIENTS -->
 <div class="page" id="page-clients">
 <div class="card">
-<div class="fb2" style="margin-bottom:14px;">
-<div class="ct mb0"><span class="ic">👥</span>Historique clients</div>
-<span class="bdg pk" id="cliCount">0 clients</span>
+<div class="fb2" style="margin-bottom:12px;">
+<div class="ct mb0"><span class="ic">👥</span>Clients</div>
+<span class="bdg pk" id="cliCount">0</span>
 </div>
-<div class="sw"><span class="si2">🔍</span><input type="text" id="searchClient" placeholder="Rechercher par nom ou téléphone..." oninput="renderCliHist()"></div>
+<div class="sw"><span class="si2">🔍</span><input type="text" id="searchClient" placeholder="Rechercher..." oninput="renderCliHist()"></div>
 <div id="cliHistList"></div>
 </div>
 </div>
@@ -287,13 +279,13 @@ tbody td{padding:10px 12px;vertical-align:middle;}
 <!-- HISTORIQUE -->
 <div class="page" id="page-historique">
 <div class="card">
-<div class="fb2" style="margin-bottom:14px;">
-<div class="ct mb0"><span class="ic">📜</span>Historique des ventes</div>
+<div class="fb2" style="margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+<div class="ct mb0"><span class="ic">📜</span>Ventes</div>
 <div class="fc">
-<input type="date" id="filterDate" onchange="renderHistory()" style="width:auto;">
-<input type="month" id="filterMonth" onchange="renderHistory()" style="width:auto;">
-<input type="number" id="filterYear" placeholder="Année" onchange="renderHistory()" style="width:80px;">
-<button class="btn btn-g btn-sm" onclick="clearFilters()">Effacer</button>
+<input type="date" id="filterDate" style="width:auto;" onchange="renderHistory()">
+<input type="month" id="filterMonth" style="width:auto;" onchange="renderHistory()">
+<input type="number" id="filterYear" placeholder="Année" style="width:70px;" onchange="renderHistory()">
+<button class="btn btn-g btn-sm" onclick="clearFilters()">✕</button>
 </div>
 </div>
 <div id="histList"></div>
@@ -302,73 +294,71 @@ tbody td{padding:10px 12px;vertical-align:middle;}
 
 <!-- FOURNISSEURS -->
 <div class="page" id="page-fournisseurs">
-<div class="g2">
 <div class="card">
-<div class="ct"><span class="ic">➕</span>Ajouter un fournisseur</div>
-<div class="fg"><label>Nom *</label><input type="text" id="suppName" placeholder="Nom du fournisseur"></div>
-<div class="fg"><label>Contact</label><input type="text" id="suppContact" placeholder="Téléphone ou email"></div>
-<div class="fg"><label>Pays</label><input type="text" id="suppCountry" placeholder="Ex: Chine, Turquie"></div>
-<button class="btn btn-p" style="width:100%;justify-content:center;" onclick="addSupplier()">➕ Ajouter</button>
+<div class="ct"><span class="ic">➕</span>Ajouter</div>
+<div class="g2" style="gap:8px;">
+<div class="fg"><label>Nom</label><input type="text" id="suppName"></div>
+<div class="fg"><label>Contact</label><input type="text" id="suppContact"></div>
 </div>
-<div class="card"><div class="ct"><span class="ic">🏭</span>Liste des fournisseurs</div><div id="suppList"></div></div>
+<div class="fg"><label>Pays</label><input type="text" id="suppCountry"></div>
+<button class="btn btn-p" style="width:100%;" onclick="addSupplier()">➕ Ajouter</button>
 </div>
+<div class="card"><div class="ct"><span class="ic">🏭</span>Liste</div><div id="suppList"></div></div>
 </div>
 
 <!-- DEPENSES -->
 <div class="page" id="page-depenses">
-<div class="g3" style="margin-bottom:20px;">
-<div class="sc pk"><div class="si">💸</div><div class="sn" id="totExp">0</div><div class="sl">Total dépenses</div></div>
-<div class="sc wn"><div class="si">📅</div><div class="sn" id="expToday">0</div><div class="sl">Dépenses aujourd'hui</div></div>
+<div class="g3" style="margin-bottom:12px;">
+<div class="sc pk"><div class="si">💸</div><div class="sn" id="totExp">0</div><div class="sl">Total</div></div>
+<div class="sc wn"><div class="si">📅</div><div class="sn" id="expToday">0</div><div class="sl">Aujourd'hui</div></div>
 <div class="sc ok"><div class="si">📈</div><div class="sn" id="netProfit">0</div><div class="sl">Bénéfice net</div></div>
 </div>
 <div class="g2">
 <div class="card">
 <div class="ct"><span class="ic">➕</span>Nouvelle dépense</div>
 <form id="expenseForm">
-<div class="fg"><label>Libellé *</label><input type="text" id="expLabel" required placeholder="Ex: Achat de stock"></div>
-<div class="fg"><label>Montant (FCFA) *</label><input type="number" id="expAmount" required min="0"></div>
-<div class="fg"><label>Catégorie</label>
-<select id="expCat"><option>Achat Stock</option><option>Loyer</option><option>Électricité</option><option>Eau</option><option>Salaires</option><option>Transport</option><option>Autre</option></select>
-</div>
+<div class="fg"><label>Libellé</label><input type="text" id="expLabel" required></div>
+<div class="fg"><label>Montant</label><input type="number" id="expAmount" required min="0"></div>
+<div class="fg"><label>Catégorie</label><select id="expCat"><option>Achat Stock</option><option>Loyer</option><option>Électricité</option><option>Eau</option><option>Salaires</option><option>Transport</option><option>Autre</option></select></div>
 <div class="fg"><label>Date</label><input type="date" id="expDate"></div>
-<button type="submit" class="btn btn-p" style="width:100%;justify-content:center;">➕ Enregistrer</button>
+<button type="submit" class="btn btn-p" style="width:100%;">➕ Enregistrer</button>
 </form>
 </div>
-<div class="card"><div class="ct"><span class="ic">📋</span>Liste des dépenses</div><div id="expList"></div></div>
+<div class="card"><div class="ct"><span class="ic">📋</span>Liste</div><div id="expList"></div></div>
 </div>
 </div>
 
 <!-- STOCK -->
 <div class="page" id="page-stock">
 <div class="card">
-<div class="fb2" style="margin-bottom:14px;">
-<div class="ct mb0"><span class="ic">📋</span>Mouvements de stock</div>
+<div class="fb2" style="margin-bottom:12px;">
+<div class="ct mb0"><span class="ic">📋</span>Mouvements</div>
 <div class="fc">
-<input type="date" id="mvtFilter" onchange="renderMvt()" style="width:auto;">
-<button class="btn btn-g btn-sm" onclick="clearMvtFilter()">Effacer</button>
+<input type="date" id="mvtFilter" style="width:auto;" onchange="renderMvt()">
+<button class="btn btn-g btn-sm" onclick="clearMvtFilter()">✕</button>
 </div>
 </div>
 <div id="mvtList"></div>
 </div>
 </div>
 
-</div><!-- /content -->
+</div>
 </main>
 </div>
 
 <!-- MODAL EDIT -->
 <div class="mo" id="editModal">
 <div class="md">
-<div class="mt2">✏️ Modifier l'article<button class="mc" onclick="closeEdit()">✕</button></div>
+<div class="mt2">✏️ Modifier<button class="mc" onclick="closeEdit()">✕</button></div>
 <div class="fg"><label>Nom</label><input type="text" id="editName"></div>
-<div class="g2" style="gap:10px;">
+<div class="g2" style="gap:8px;">
 <div class="fg"><label>Prix vente</label><input type="number" id="editPrice"></div>
 <div class="fg"><label>Prix achat</label><input type="number" id="editCost"></div>
 <div class="fg"><label>Stock</label><input type="number" id="editStock"></div>
-<div class="fg"><label>Seuil alerte</label><input type="number" id="editAlert"></div>
+<div class="fg"><label>Seuil</label><input type="number" id="editAlert"></div>
 </div>
 <div class="fg"><label>Fournisseur</label><input type="text" id="editSupp"></div>
-<button class="btn btn-p" style="width:100%;justify-content:center;margin-top:8px;" onclick="saveEdit()">💾 Sauvegarder</button>
+<button class="btn btn-p" style="width:100%;margin-top:8px;" onclick="saveEdit()">💾 Sauvegarder</button>
 </div>
 </div>
 
@@ -419,6 +409,17 @@ function updateStatus(msg) {
     document.getElementById('stxt').textContent = msg;
     setTimeout(() => document.getElementById('stxt').textContent = 'Prêt', 2500);
 }
+
+// ==================== MENU MOBILE ====================
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+}
+
+document.getElementById('menuBtn').addEventListener('click', toggleSidebar);
+document.getElementById('sidebarOverlay').addEventListener('click', toggleSidebar);
 
 // ==================== CHARGEMENT/SAUVEGARDE ====================
 function loadData() {
@@ -585,7 +586,7 @@ function addProduct(e) {
         cost: parseInt(document.getElementById('prodCost').value) || 0,
         price: parseInt(document.getElementById('prodPrice').value) || 0,
         stock: parseInt(document.getElementById('prodStock').value) || 0,
-        category: catName || document.getElementById('prodCategory')?.value || 'Autre',
+        category: catName || 'Autre',
         categoryId: catId || null,
         alertThreshold: parseInt(document.getElementById('prodAlert').value) || 5,
         supplier: document.getElementById('prodSupplier').value || ''
@@ -610,31 +611,24 @@ function renderProducts() {
     
     if (currentView === 'grid') {
         container.innerHTML = `<div class="pg">${filtered.map(p => `
-            <div class="pc">
+            <div class="pc" onclick="addToCart(${p.id})">
                 <div class="pn">${p.name}</div>
-                <div class="pcat">${p.category || '-'} ${p.supplier ? '· ' + p.supplier : ''}</div>
+                <div class="pcat">${p.category || '-'}</div>
                 <div class="pp">${p.price.toLocaleString()} FCFA</div>
-                <div style="margin-bottom:10px;"><span class="bdg ${p.stock <= p.alertThreshold ? 'wn' : 'ok'}">${p.stock <= 0 ? '❌ Rupture' : '📦 ' + p.stock + ' dispo'}</span></div>
-                <div style="display:flex;gap:6px;">
-                    <button class="btn btn-g btn-sm" onclick="openEdit(${p.id})">✏️</button>
-                    <button class="btn btn-d btn-sm" onclick="deleteProduct(${p.id})">🗑️</button>
-                    <button class="btn btn-p btn-sm" onclick="addToCart(${p.id})" ${p.stock === 0 ? 'disabled' : ''} style="flex:1;">🛒</button>
-                </div>
+                <div><span class="bdg ${p.stock <= p.alertThreshold ? 'wn' : 'ok'}">${p.stock <= 0 ? '❌' : p.stock}</span></div>
             </div>`).join('')}</div>`;
     } else {
-        container.innerHTML = `<table style="width:100%;"><thead> <tr><th>ID</th><th>Article</th><th>Catégorie</th><th>Achat</th><th>Vente</th><th>Marge</th><th>Stock</th><th>Actions</th></tr> </thead><tbody>
-            ${filtered.map(p => {
-                const margin = p.cost ? Math.round((p.price - p.cost) / p.cost * 100) : 0;
-                return `<tr><td class="tm2">${p.id}</td><td><strong>${p.name}</strong>${p.supplier ? '<br><span class="tsm tm2">' + p.supplier + '</span>' : ''}</td>
-                <td>${p.category || '-'}</td><td>${p.cost.toLocaleString()}</td><td class="tp fb">${p.price.toLocaleString()}</td>
-                <td><span class="bdg ${margin >= 30 ? 'ok' : 'wn'}">${margin}%</span></td>
+        container.innerHTML = `<div class="tw"><table style="width:100%;"><thead> <tr><th>Nom</th><th>Prix</th><th>Stock</th><th>Actions</th></tr> </thead><tbody>
+            ${filtered.map(p => `<tr>
+                <td><strong>${p.name}</strong><br><span class="tsm tm2">${p.category || '-'}</span></td>
+                <td>${p.price.toLocaleString()}</td>
                 <td><span class="bdg ${p.stock <= p.alertThreshold ? 'wn' : 'ok'}">${p.stock}</span></td>
                 <td><div style="display:flex;gap:4px;">
-                    <button class="btn btn-g btn-sm" onclick="addToCart(${p.id})" ${p.stock === 0 ? 'disabled' : ''}>🛒</button>
+                    <button class="btn btn-g btn-sm" onclick="addToCart(${p.id})" ${p.stock===0?'disabled':''}>🛒</button>
                     <button class="btn btn-o btn-sm" onclick="openEdit(${p.id})">✏️</button>
                     <button class="btn btn-d btn-sm" onclick="deleteProduct(${p.id})">🗑️</button>
-                </div></td></tr>`;
-            }).join('')}</tbody></table>`;
+                </div></td>
+            </tr>`).join('')}</tbody></table></div>`;
     }
 }
 
@@ -695,12 +689,12 @@ function renderVenteCat() {
     if (!container) return;
     const search = (document.getElementById('venteSearch')?.value || '').toLowerCase();
     let filtered = products.filter(p => p.name.toLowerCase().includes(search) || (p.category || '').toLowerCase().includes(search));
-    container.innerHTML = `<div class="pg" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">${filtered.map(p => `
+    container.innerHTML = `<div class="pg" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr));">${filtered.map(p => `
         <div class="pc" onclick="addToCart(${p.id})">
-            <div class="pn" style="font-size:.82em;">${p.name}</div>
-            <div class="pcat" style="font-size:.68em;">${p.category || ''}</div>
-            <div style="color:var(--pink);font-weight:700;font-size:.9em;margin:6px 0;">${p.price.toLocaleString()} FCFA</div>
-            <span class="bdg ${p.stock <= 0 ? 'dn' : p.stock <= p.alertThreshold ? 'wn' : 'ok'}" style="font-size:.68em;">${p.stock <= 0 ? 'Rupture' : p.stock + ' dispo'}</span>
+            <div class="pn">${p.name}</div>
+            <div class="pcat">${p.category || ''}</div>
+            <div class="pp">${p.price.toLocaleString()}</div>
+            <span class="bdg ${p.stock <= 0 ? 'dn' : p.stock <= p.alertThreshold ? 'wn' : 'ok'}">${p.stock <= 0 ? 'Rupture' : p.stock}</span>
         </div>`).join('')}</div>`;
 }
 
@@ -744,7 +738,7 @@ function renderCart() {
     const totalBox = document.getElementById('cartTotalBox');
     if (!container) return;
     if (!cart.length) {
-        container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:20px;">Panier vide — cliquez sur un article</p>';
+        container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:16px;">Panier vide</p>';
         if (totalBox) totalBox.style.display = 'none';
         return;
     }
@@ -752,10 +746,10 @@ function renderCart() {
     container.innerHTML = cart.map(item => {
         subtotal += item.price * item.qty;
         return `<div class="ci">
-            <div><div style="font-weight:600;font-size:.85em;">${item.name}</div><div class="tsm tm2">${item.price.toLocaleString()} FCFA × ${item.qty}</div></div>
+            <div><div style="font-weight:600;">${item.name}</div><div class="tsm tm2">${item.price.toLocaleString()} × ${item.qty}</div></div>
             <div class="qc">
                 <button class="qb" onclick="updateCartQty(${item.id}, -1)">−</button>
-                <span style="font-weight:700;width:24px;text-align:center;">${item.qty}</span>
+                <span style="width:24px;text-align:center;">${item.qty}</span>
                 <button class="qb" onclick="updateCartQty(${item.id}, 1)">+</button>
                 <button class="btn btn-d btn-sm" onclick="removeFromCart(${item.id})">🗑️</button>
             </div>
@@ -770,7 +764,7 @@ function renderCart() {
             <div class="tl"><span>Sous-total</span><span>${subtotal.toLocaleString()} FCFA</span></div>
             ${currentPromo > 0 ? `<div class="tl"><span>Réduction ${currentPromo}%</span><span>−${discount.toLocaleString()} FCFA</span></div>` : ''}
             <div class="tm"><span>TOTAL</span><span>${total.toLocaleString()} FCFA</span></div>
-            ${points > 0 ? `<div class="tl" style="margin-top:6px;"><span>⭐ Points à gagner</span><span>${points} pts</span></div>` : ''}
+            ${points > 0 ? `<div class="tl" style="margin-top:4px;"><span>⭐ Points</span><span>${points}</span></div>` : ''}
         `;
     }
 }
@@ -780,7 +774,7 @@ function applyPromo() {
     if (PROMOS[code]) {
         currentPromo = PROMOS[code];
         renderCart();
-        showToast(`Réduction ${currentPromo}% appliquée !`, 'success');
+        showToast(`Réduction ${currentPromo}% !`, 'success');
     } else {
         showToast('Code invalide', 'warn');
     }
@@ -793,7 +787,7 @@ function lookupClient() {
     const ptsDiv = document.getElementById('cliPts');
     if (client) {
         if (!document.getElementById('clientName').value) document.getElementById('clientName').value = client.name;
-        ptsDiv.innerHTML = '⭐ ' + client.points + ' points · ' + client.totalSpent.toLocaleString() + ' FCFA';
+        ptsDiv.innerHTML = '⭐ ' + client.points + ' pts · ' + client.totalSpent.toLocaleString() + ' FCFA';
         ptsDiv.style.display = 'inline-flex';
     } else {
         ptsDiv.style.display = 'none';
@@ -825,19 +819,16 @@ function renderCliHist() {
     let filtered = clients.filter(c => c.name.toLowerCase().includes(search) || c.phone.includes(search));
     const container = document.getElementById('cliHistList');
     const countSpan = document.getElementById('cliCount');
-    if (countSpan) countSpan.textContent = clients.length + ' clients';
+    if (countSpan) countSpan.textContent = clients.length;
     if (!container) return;
     if (!filtered.length) { container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:20px;">Aucun client</p>'; return; }
     container.innerHTML = filtered.map(cl => `
         <div class="hi">
             <div class="hih">
                 <div><div class="fb">${cl.name}</div><div class="tsm tm2">📞 ${cl.phone}</div></div>
-                <div style="text-align:right;"><span class="bdg gd">⭐ ${cl.points} pts</span><div class="tsm tm2 mt8">${cl.totalSpent.toLocaleString()} FCFA</div></div>
+                <div><span class="bdg gd">⭐ ${cl.points}</span><div class="tsm">${cl.totalSpent.toLocaleString()} FCFA</div></div>
             </div>
-            ${cl.purchases?.length ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--pink-b);">
-                <div class="tsm tm2" style="margin-bottom:4px;">Derniers achats</div>
-                ${cl.purchases.slice(0, 3).map(p => `<div class="fb2 tsm" style="padding:3px 0;"><span>${new Date(p.date).toLocaleDateString('fr-FR')}</span><span class="fb tp">${p.total.toLocaleString()} FCFA</span></div>`).join('')}
-            </div>` : ''}
+            ${cl.purchases?.length ? `<div class="tsm tm2" style="margin-top:6px;">Dernier achat: ${new Date(cl.purchases[0].date).toLocaleDateString('fr-FR')}</div>` : ''}
         </div>`).join('');
 }
 
@@ -846,25 +837,21 @@ function printReceipt(sale) {
     const html = `
         <div style="font-family: monospace; max-width: 350px; margin: 0 auto; padding: 15px;">
             <div style="text-align:center; border-bottom:1px dashed #E91E8C; padding-bottom:10px;">
-                <div style="font-size:1.2em; color:#E91E8C;">DIEYLA SHOP</div>
-                <div style="font-size:.75em;">VENTE DE TOUTES SORTES DE MARCHANDISES</div>
-                <div style="font-size:.7em;">VENANT DE CHINE - TURQUIE</div>
-                <div style="font-size:.75em;">📞 77 262 24 71 · Rufisque</div>
-                <div style="font-size:.75em;">${new Date(sale.date).toLocaleString('fr-FR')}</div>
-                <div style="font-size:.75em;">Reçu N°${sale.id}</div>
+                <div style="font-size:1.2em;">DIEYLA SHOP</div>
+                <div>Tel: 77 262 24 71</div>
+                <div>${new Date(sale.date).toLocaleString('fr-FR')}</div>
+                <div>Reçu N°${sale.id}</div>
             </div>
-            <div style="background:#fff9fb;padding:8px;margin:10px 0;border-radius:5px;">
-                <div>👤 ${sale.clientName} · 📞 ${sale.clientPhone}</div>
-                ${sale.clientAddress ? '<div>📍 ' + sale.clientAddress + '</div>' : ''}
-                ${sale.pointsEarned ? '<div>⭐ Points gagnés: +' + sale.pointsEarned + '</div>' : ''}
+            <div style="margin:10px 0;">
+                <div>👤 ${sale.clientName}</div>
+                <div>📞 ${sale.clientPhone}</div>
             </div>
-            <div>${sale.items.map(i => '<div style="display:flex;justify-content:space-between;"><span>' + i.name + ' ×' + i.qty + '</span><span>' + (i.price * i.qty).toLocaleString() + ' FCFA</span></div>').join('')}</div>
+            ${sale.items.map(i => `<div style="display:flex;justify-content:space-between;"><span>${i.name} ×${i.qty}</span><span>${(i.price*i.qty).toLocaleString()} FCFA</span></div>`).join('')}
             <div style="border-top:1px dashed #E91E8C;margin-top:10px;padding-top:8px;">
-                <div style="display:flex;justify-content:space-between;"><span>Sous-total</span><span>${sale.subtotal.toLocaleString()} FCFA</span></div>
-                ${sale.discount > 0 ? '<div style="display:flex;justify-content:space-between;"><span>Réduction ' + sale.discount + '%</span><span>−' + sale.discountAmount.toLocaleString() + ' FCFA</span></div>' : ''}
-                <div style="display:flex;justify-content:space-between;font-weight:bold;margin-top:6px;border-top:1px solid #E91E8C;padding-top:6px;"><span>TOTAL</span><span>${sale.total.toLocaleString()} FCFA</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>TOTAL</span><span>${sale.total.toLocaleString()} FCFA</span></div>
+                ${sale.pointsEarned ? `<div>⭐ +${sale.pointsEarned} points</div>` : ''}
             </div>
-            <div style="text-align:center;margin-top:14px;color:#E91E8C;">Merci ! À bientôt 🌸</div>
+            <div style="text-align:center;margin-top:10px;">Merci !</div>
         </div>`;
     const win = window.open('', '_blank');
     win.document.body.innerHTML = html;
@@ -882,7 +869,7 @@ function checkout() {
     const items = [];
     for (const item of cart) {
         const p = products.find(p => p.id === item.id);
-        if (!p || p.stock < item.qty) { showToast('Stock insuffisant: ' + item.name, 'warn'); return; }
+        if (!p || p.stock < item.qty) { showToast('Stock insuffisant', 'warn'); return; }
         subtotal += p.price * item.qty;
         items.push({ id: item.id, name: item.name, qty: item.qty, price: p.price, cost: p.cost });
     }
@@ -892,13 +879,13 @@ function checkout() {
     const profit = total - totalCost;
     const pointsEarned = Math.floor(total / 1000) * 10;
     
-    if (!confirm(`Client: ${clientName}\nTél: ${clientPhone}\nTotal: ${total.toLocaleString()} FCFA\nConfirmer ?`)) return;
+    if (!confirm(`Client: ${clientName}\nTotal: ${total.toLocaleString()} FCFA\nConfirmer ?`)) return;
     
     const client = getOrCreateClient(clientName, clientPhone);
     for (const item of cart) {
         const p = products.find(p => p.id === item.id);
         p.stock -= item.qty;
-        stockMovements.unshift({ id: Date.now(), date: new Date().toISOString(), productId: p.id, productName: p.name, type: 'sortie', quantity: item.qty, reason: 'Vente à ' + clientName });
+        stockMovements.unshift({ id: Date.now(), date: new Date().toISOString(), productId: p.id, productName: p.name, type: 'sortie', quantity: item.qty, reason: 'Vente' });
     }
     updateClientPoints(client.id, total);
     
@@ -910,7 +897,6 @@ function checkout() {
     };
     client.purchases = client.purchases || [];
     client.purchases.unshift({ date: sale.date, total: sale.total, items: sale.items.length });
-    if (client.purchases.length > 20) client.purchases = client.purchases.slice(0, 20);
     sales.push(sale);
     cart = [];
     currentPromo = 0;
@@ -955,21 +941,18 @@ function renderExpenses() {
     const totalProfit = sales.reduce((s, sale) => s + sale.profit, 0);
     const netProfit = totalProfit - total;
     
-    document.getElementById('totExp').textContent = total.toLocaleString() + ' FCFA';
-    document.getElementById('expToday').textContent = todayTotal.toLocaleString() + ' FCFA';
+    document.getElementById('totExp').textContent = total.toLocaleString() + ' F';
+    document.getElementById('expToday').textContent = todayTotal.toLocaleString() + ' F';
     const netElem = document.getElementById('netProfit');
-    if (netElem) {
-        netElem.textContent = netProfit.toLocaleString() + ' FCFA';
-        netElem.style.color = netProfit >= 0 ? 'var(--ok)' : 'var(--bad)';
-    }
+    if (netElem) netElem.textContent = netProfit.toLocaleString() + ' F';
     
     const container = document.getElementById('expList');
     if (!container) return;
-    if (!expenses.length) { container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:20px;">Aucune dépense</p>'; return; }
-    container.innerHTML = expenses.sort((a, b) => b.date.localeCompare(a.date)).map(e => `
-        <div class="fb2" style="padding:10px 0;border-bottom:1px solid var(--pink-b);">
-            <div><div class="fb" style="font-size:.88em;">${e.label}</div><div class="tsm tm2">${new Date(e.date).toLocaleDateString('fr-FR')} · <span class="bdg inf">${e.category}</span></div></div>
-            <div class="fc"><span style="color:var(--bad);font-weight:700;">−${e.amount.toLocaleString()} F</span>
+    if (!expenses.length) { container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:20px;">Aucune</p>'; return; }
+    container.innerHTML = expenses.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 20).map(e => `
+        <div class="fb2" style="padding:8px 0;border-bottom:1px solid var(--pink-b);">
+            <div><div class="fb">${e.label}</div><div class="tsm tm2">${new Date(e.date).toLocaleDateString('fr-FR')}</div></div>
+            <div class="fc"><span style="color:var(--bad);">-${e.amount.toLocaleString()}</span>
             <button class="btn btn-d btn-sm" onclick="deleteExpense(${e.id})">🗑️</button></div>
         </div>`).join('');
 }
@@ -994,21 +977,14 @@ function renderHistory() {
     const container = document.getElementById('histList');
     if (!container) return;
     if (!filtered.length) { container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:20px;">Aucune vente</p>'; return; }
-    const totalCA = filtered.reduce((s, sale) => s + sale.total, 0);
-    container.innerHTML = `<div class="alert al-s" style="margin-bottom:14px;">📊 ${filtered.length} vente(s) · CA: <strong>${totalCA.toLocaleString()} FCFA</strong></div>
-        ${[...filtered].reverse().map(s => `
+    container.innerHTML = filtered.reverse().slice(0, 30).map(s => `
         <div class="hi">
             <div class="hih">
-                <div><div class="fb">N°${s.id}</div><div class="tsm tm2">${new Date(s.date).toLocaleString('fr-FR')}</div>
-                <div class="tsm" style="margin-top:4px;">👤 ${s.clientName} · 📞 ${s.clientPhone}</div></div>
-                <div style="text-align:right;"><div class="fb tp">${s.total.toLocaleString()} FCFA</div>
-                <div class="tsm tm2">Bénéfice: ${s.profit.toLocaleString()}</div>
-                ${s.discount > 0 ? '<span class="bdg inf">−' + s.discount + '%</span>' : ''}</div>
+                <div><div class="fb">${new Date(s.date).toLocaleDateString('fr-FR')}</div><div class="tsm">${s.clientName}</div></div>
+                <div><div class="fb tp">${s.total.toLocaleString()} F</div></div>
             </div>
-            <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--pink-b);font-size:.78em;color:var(--muted);">
-                ${s.items.map(i => i.name + ' ×' + i.qty + ' = ' + (i.price * i.qty).toLocaleString() + ' FCFA').join(' · ')}
-            </div>
-        </div>`).join('')}`;
+            <div class="tsm tm2">${s.items.map(i => i.name + ' ×' + i.qty).join(', ')}</div>
+        </div>`).join('');
 }
 
 // ==================== FOURNISSEURS ====================
@@ -1025,7 +1001,7 @@ function addSupplier() {
 }
 
 function deleteSupplier(id) {
-    if (!confirm('Supprimer ce fournisseur ?')) return;
+    if (!confirm('Supprimer ?')) return;
     suppliers = suppliers.filter(s => s.id !== id);
     saveData();
     renderSuppliers();
@@ -1034,10 +1010,10 @@ function deleteSupplier(id) {
 function renderSuppliers() {
     const container = document.getElementById('suppList');
     if (!container) return;
-    if (!suppliers.length) { container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:20px;">Aucun fournisseur</p>'; return; }
+    if (!suppliers.length) { container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:20px;">Aucun</p>'; return; }
     container.innerHTML = suppliers.map(s => `
-        <div class="fb2" style="padding:10px 0;border-bottom:1px solid var(--pink-b);">
-            <div><div class="fb" style="font-size:.88em;">${s.name}</div><div class="tsm tm2">${s.contact || 'Pas de contact'}${s.country ? ' · ' + s.country : ''}</div></div>
+        <div class="fb2" style="padding:8px 0;border-bottom:1px solid var(--pink-b);">
+            <div><div class="fb">${s.name}</div><div class="tsm">${s.contact || ''}</div></div>
             <button class="btn btn-d btn-sm" onclick="deleteSupplier(${s.id})">🗑️</button>
         </div>`).join('');
 }
@@ -1055,10 +1031,10 @@ function renderMvt() {
     const container = document.getElementById('mvtList');
     if (!container) return;
     if (!filtered.length) { container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:20px;">Aucun mouvement</p>'; return; }
-    container.innerHTML = filtered.slice(0, 100).map(m => `
-        <div class="fb2" style="padding:10px 0;border-bottom:1px solid var(--pink-b);">
-            <div><div class="fb" style="font-size:.85em;">${m.productName}</div><div class="tsm tm2">${new Date(m.date).toLocaleString('fr-FR')} · ${m.reason || ''}</div></div>
-            <span class="bdg ${m.type === 'entrée' ? 'ok' : 'wn'}">${m.type === 'entrée' ? '+' : '-'}${m.quantity} ${m.type}</span>
+    container.innerHTML = filtered.slice(0, 50).map(m => `
+        <div class="fb2" style="padding:8px 0;border-bottom:1px solid var(--pink-b);">
+            <div><div class="fb">${m.productName}</div><div class="tsm">${new Date(m.date).toLocaleDateString('fr-FR')}</div></div>
+            <span class="bdg ${m.type === 'entrée' ? 'ok' : 'wn'}">${m.type === 'entrée' ? '+' : '-'}${m.quantity}</span>
         </div>`).join('');
 }
 
@@ -1076,8 +1052,8 @@ function checkAlerts() {
     const alertDiv = document.getElementById('alertCont');
     if (!alertDiv) return;
     let html = '';
-    if (lowStock.length) html += `<div class="alert al-w">⚠️ Stock faible : ${lowStock.map(p => '<strong>' + p.name + '</strong> (' + p.stock + ')').join(', ')}</div>`;
-    if (outStock.length) html += `<div class="alert al-d">❌ Rupture : ${outStock.map(p => '<strong>' + p.name + '</strong>').join(', ')}</div>`;
+    if (lowStock.length) html += `<div class="alert al-w">⚠️ Stock faible: ${lowStock.map(p => p.name).join(', ')}</div>`;
+    if (outStock.length) html += `<div class="alert al-d">❌ Rupture: ${outStock.map(p => p.name).join(', ')}</div>`;
     alertDiv.innerHTML = html;
 }
 
@@ -1087,12 +1063,11 @@ function renderTop() {
     const productQty = {};
     sales.forEach(sale => sale.items.forEach(item => { productQty[item.name] = (productQty[item.name] || 0) + item.qty; }));
     const top = Object.entries(productQty).sort((a, b) => b[1] - a[1]).slice(0, 5);
-    if (!top.length) { container.innerHTML = '<p class="tsm tm2" style="text-align:center;padding:14px;">Aucune vente</p>'; return; }
-    const maxQty = top[0][1];
+    if (!top.length) { container.innerHTML = '<p class="tsm tm2">Aucune vente</p>'; return; }
     container.innerHTML = top.map(([name, qty], i) => `
-        <div style="margin-bottom:10px;">
-            <div class="fb2 tsm" style="margin-bottom:4px;"><span>${['🥇', '🥈', '🥉', '4️⃣', '5️⃣'][i]} ${name}</span><span class="fb">${qty} vendus</span></div>
-            <div style="background:var(--pink-p);border-radius:20px;height:6px;"><div style="background:linear-gradient(90deg,var(--pink),var(--pink-l));height:6px;border-radius:20px;width:${(qty / maxQty * 100).toFixed(0)}%;"></div></div>
+        <div class="fb2 tsm" style="margin-bottom:6px;">
+            <span>${['🥇','🥈','🥉','4️⃣','5️⃣'][i]} ${name}</span>
+            <span class="fb">${qty}</span>
         </div>`).join('');
 }
 
@@ -1106,8 +1081,8 @@ function updateChart() {
     if (ctx) {
         salesChart = new Chart(ctx, {
             type: 'line',
-            data: { labels: sorted.map(m => { const d = new Date(m + '-01'); return d.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }); }), datasets: [{ label: 'CA (FCFA)', data: values, borderColor: '#E91E8C', backgroundColor: 'rgba(233,30,140,.08)', fill: true, tension: .4, pointBackgroundColor: '#E91E8C', pointRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(233,30,140,.06)' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false } } } }
+            data: { labels: sorted.map(m => m.slice(5)), datasets: [{ label: 'CA', data: values, borderColor: '#E91E8C', backgroundColor: 'rgba(233,30,140,.08)', fill: true, tension: .3, pointRadius: 3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
     }
     const catProfit = {};
@@ -1122,7 +1097,7 @@ function updateChart() {
         catChart = new Chart(ctx2, {
             type: 'doughnut',
             data: { labels: Object.keys(catProfit), datasets: [{ data: Object.values(catProfit), backgroundColor: ['#E91E8C', '#FF4DB8', '#FF80CC', '#FFB3DD', '#FFD6EE'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
         });
     }
     const now = new Date();
@@ -1130,15 +1105,13 @@ function updateChart() {
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 7);
     const currentCA = months[currentMonth] || 0;
     const lastCA = months[lastMonth] || 0;
-    const evolution = lastCA ? ((currentCA - lastCA) / lastCA * 100).toFixed(1) : (currentCA ? 100 : 0);
-    document.getElementById('curCA').textContent = currentCA.toLocaleString() + ' FCFA';
-    document.getElementById('lstCA').textContent = lastCA.toLocaleString() + ' FCFA';
-    const evoElem = document.getElementById('evoP');
-    evoElem.textContent = (evolution > 0 ? '+' : '') + evolution + '%';
-    evoElem.style.color = evolution >= 0 ? 'var(--ok)' : 'var(--bad)';
+    const evolution = lastCA ? ((currentCA - lastCA) / lastCA * 100).toFixed(0) : (currentCA ? 100 : 0);
+    document.getElementById('curCA').textContent = currentCA.toLocaleString() + ' F';
+    document.getElementById('lstCA').textContent = lastCA.toLocaleString() + ' F';
+    document.getElementById('evoP').textContent = (evolution > 0 ? '+' : '') + evolution + '%';
     const last3 = sorted.slice(-3).map(m => months[m] || 0);
     const avg = last3.length ? last3.reduce((a, b) => a + b, 0) / last3.length : currentCA;
-    document.getElementById('forecast').textContent = Math.round(avg * 1.05).toLocaleString() + ' FCFA';
+    document.getElementById('forecast').textContent = Math.round(avg * 1.05).toLocaleString() + ' F';
 }
 
 // ==================== NAVIGATION ====================
@@ -1157,6 +1130,7 @@ function showPage(pageName) {
     if (pageName === 'fournisseurs') renderSuppliers();
     if (pageName === 'depenses') renderExpenses();
     if (pageName === 'stock') renderMvt();
+    if (window.innerWidth < 768) toggleSidebar();
 }
 
 function setView(view) {
@@ -1197,7 +1171,10 @@ function init() {
     document.getElementById('newSaleBtn')?.addEventListener('click', () => showPage('vente'));
     document.getElementById('addCategoryBtn')?.addEventListener('click', addCategory);
     document.querySelectorAll('.nav-i').forEach(btn => {
-        btn.addEventListener('click', () => showPage(btn.getAttribute('data-page')));
+        btn.addEventListener('click', () => {
+            showPage(btn.getAttribute('data-page'));
+            if (window.innerWidth < 768) toggleSidebar();
+        });
     });
     showPage('dashboard');
 }
