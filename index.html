@@ -757,7 +757,7 @@ function renderCart() {
     }).join('');
     const discount = (subtotal * currentPromo) / 100;
     const total = subtotal - discount;
-    const points = Math.floor(total / 1000) * 10;
+    const points = Math.floor(total / 10000) * 10;
     if (totalBox) {
         totalBox.style.display = 'block';
         totalBox.innerHTML = `
